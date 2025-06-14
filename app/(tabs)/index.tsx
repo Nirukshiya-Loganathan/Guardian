@@ -1,9 +1,12 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
+
   const openGuardianApp = () => {
-    Linking.openURL('guardian://'); // Deep link or external app
+    navigation.navigate('GuardianHomePage' as never); // Navigate to GuardianHomePage
   };
 
   return (
