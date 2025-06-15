@@ -9,23 +9,34 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from './_layout';
 
 const { width, height } = Dimensions.get('window');
 
 const HomePage = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const handleCreateAccount = () => {
     // Navigate to create account screen
     console.log('Navigate to Create Account');
-    // navigation.navigate('CreateAccount');
+    if (navigation) {
+      navigation.navigate('RegistrationPage');
+    } else {
+      console.error("Navigation object is undefined in GuardianHomePage.");
+      // Optionally, add an alert or other user feedback here
+    }
   };
 
   const handleLogin = () => {
     // Navigate to login screen
     console.log('Navigate to Login');
-    // navigation.navigate('Login');
+    if (navigation) {
+      navigation.navigate('LoginPage');
+    } else {
+      console.error("Navigation object is undefined in GuardianHomePage.");
+      // Optionally, add an alert or other user feedback here
+    }
   };
 
   return (
@@ -34,6 +45,11 @@ const HomePage = () => {
 
       {/* Header */}
       <View style={styles.header}>
+      <Image
+            source={require('../assets/images/logo.png')} // Update path as needed
+            style={styles.logo1}
+            resizeMode="contain"
+          />
         <Text style={styles.headerTitle}>Guardian</Text>
       </View>
 
@@ -46,7 +62,7 @@ const HomePage = () => {
             style={styles.logo}
             resizeMode="contain"
           />
-          <Text style={styles.brandName}>GUARDIAN</Text>
+        
         </View>
 
         {/* Welcome Section */}
@@ -102,26 +118,30 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     backgroundColor: '#f8f4ff',
   },
+  logo1: {
+    width: 50,
+    height: 50,
+  },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    marginLeft: 10,
+    marginLeft: 5, // Reduced margin to bring title closer to logo
   },
   content: {
     flex: 1,
     paddingHorizontal: 30,
     justifyContent: 'flex-start',
-    paddingTop: 20,
+    paddingTop: 40, // Increased padding to move content down
   },
   logoContainer: {
     alignItems: 'center',
     marginBottom: 60,
   },
   logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 10,
+    width: 230,
+    height: 230,
+    marginBottom: -60,
   },
   brandName: {
     fontSize: 16,

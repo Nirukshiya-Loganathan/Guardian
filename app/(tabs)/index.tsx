@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   cloudButton: {
     position: 'absolute',
-    top: 60,
+    top: 40, // Reduced top value to move the cloud icon higher
     right: 30,
   },
   cloudIcon: {
