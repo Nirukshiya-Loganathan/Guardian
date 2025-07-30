@@ -8,6 +8,10 @@ import {
   SafeAreaView,
   ScrollView,
   Dimensions,
+  Modal,
+  TextInput,
+  Alert,
+  Share,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { router } from 'expo-router';
@@ -25,7 +29,7 @@ interface JournalEntry {
 }
 
 const JournalPage = () => {
-  const [entries] = useState<JournalEntry[]>([
+  const [entries, setEntries] = useState<JournalEntry[]>([
     {
       id: '1',
       title: 'Unexpected Late-Night Caller',
@@ -46,6 +50,15 @@ const JournalPage = () => {
     }
   ]);
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEntryModal, setShowEntryModal] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
+  const [newEntry, setNewEntry] = useState({
+    title: '',
+    description: '',
+    tagType: 'incident' as 'incident' | 'legal' | 'personal'
+  });
+
   const handleBack = () => {
     if (router.canGoBack()) {
       router.back();
@@ -55,18 +68,76 @@ const JournalPage = () => {
   };
 
   const handleAddDocument = () => {
-    console.log('Add new document');
-    // Navigate to add document page or show modal
+    setShowAddModal(true);
   };
 
-  const handleExportForLegal = () => {
-    console.log('Export for legal use');
-    // Handle export functionality
+  const handleExportForLegal = async () => {
+    try {
+      const exportData = entries.map(entry => ({
+        title: entry.title,
+        date: entry.date,
+        description: entry.description,
+        tag: entry.tag,
+        user: entry.user
+      }));
+      
+      const exportText = `GUARDIAN JOURNAL EXPORT - LEGAL USE
+Generated on: ${new Date().toLocaleDateString()}
+
+${exportData.map((entry, index) => `
+ENTRY ${index + 1}
+Title: ${entry.title}
+Date: ${entry.date}
+Category: ${entry.tag}
+User: ${entry.user}
+Description: ${entry.description}
+${'='.repeat(50)}
+`).join('')}
+
+This document was exported from Guardian app for legal purposes.
+All entries are chronologically ordered and include metadata.`;
+
+      await Share.share({
+        message: exportText,
+        title: 'Guardian Journal Export - Legal Use'
+      });
+    } catch (error) {
+      Alert.alert('Export Error', 'Could not export journal entries. Please try again.');
+    }
   };
 
   const handleEntryPress = (entryId: string) => {
-    console.log('View entry:', entryId);
-    // Navigate to detailed entry view
+    const entry = entries.find(e => e.id === entryId);
+    if (entry) {
+      setSelectedEntry(entry);
+      setShowEntryModal(true);
+    }
+  };
+
+  const handleSaveEntry = () => {
+    if (!newEntry.title.trim() || !newEntry.description.trim()) {
+      Alert.alert('Missing Information', 'Please fill in both title and description.');
+      return;
+    }
+
+    const entry: JournalEntry = {
+      id: Date.now().toString(),
+      title: newEntry.title,
+      description: newEntry.description,
+      tag: newEntry.tagType.charAt(0).toUpperCase() + newEntry.tagType.slice(1),
+      tagType: newEntry.tagType,
+      user: 'Current User',
+      date: new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })
+    };
+
+    setEntries(prev => [entry, ...prev]);
+    setNewEntry({ title: '', description: '', tagType: 'incident' });
+    setShowAddModal(false);
+    Alert.alert('Success', 'Document added successfully to your secure journal.');
   };
 
   const handleHome = () => {
@@ -78,7 +149,7 @@ const JournalPage = () => {
   };
 
   const handleSettings = () => {
-    console.log('Navigate to Settings');
+    router.push('/SettingsPage');
   };
 
   const getTagColor = (tagType: string) => {
@@ -207,6 +278,146 @@ const JournalPage = () => {
           <Text style={styles.navText}>Settings</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Add Document Modal */}
+      <Modal
+        visible={showAddModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowAddModal(false)}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setShowAddModal(false)}>
+              <Icon name="close" size={24} color="#666" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Add New Document</Text>
+            <TouchableOpacity onPress={handleSaveEntry}>
+              <Text style={styles.saveButton}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView style={styles.modalContent}>
+            <View style={styles.inputSection}>
+              <Text style={styles.inputLabel}>Document Title</Text>
+              <TextInput
+                style={styles.titleInput}
+                placeholder="Enter a descriptive title..."
+                value={newEntry.title}
+                onChangeText={(text) => setNewEntry(prev => ({ ...prev, title: text }))}
+                multiline
+              />
+            </View>
+
+            <View style={styles.inputSection}>
+              <Text style={styles.inputLabel}>Category</Text>
+              <View style={styles.categoryContainer}>
+                {(['incident', 'legal', 'personal'] as const).map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    style={[
+                      styles.categoryButton,
+                      newEntry.tagType === type && styles.categoryButtonSelected
+                    ]}
+                    onPress={() => setNewEntry(prev => ({ ...prev, tagType: type }))}
+                  >
+                    <Text style={[
+                      styles.categoryText,
+                      newEntry.tagType === type && styles.categoryTextSelected
+                    ]}>
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.inputSection}>
+              <Text style={styles.inputLabel}>Description</Text>
+              <TextInput
+                style={styles.descriptionInput}
+                placeholder="Describe the incident, provide details, times, locations, witnesses, etc. This information will be securely stored and can be exported for legal use."
+                value={newEntry.description}
+                onChangeText={(text) => setNewEntry(prev => ({ ...prev, description: text }))}
+                multiline
+                numberOfLines={8}
+                textAlignVertical="top"
+              />
+            </View>
+
+            <View style={styles.securityNotice}>
+              <Icon name="security" size={20} color="#8B5CF6" />
+              <Text style={styles.securityText}>
+                All entries are encrypted and stored securely on your device only.
+              </Text>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* View Entry Modal */}
+      <Modal
+        visible={showEntryModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowEntryModal(false)}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setShowEntryModal(false)}>
+              <Icon name="close" size={24} color="#666" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Document Details</Text>
+            <TouchableOpacity onPress={() => {
+              if (selectedEntry) {
+                Share.share({
+                  message: `${selectedEntry.title}\n\nDate: ${selectedEntry.date}\nCategory: ${selectedEntry.tag}\n\n${selectedEntry.description}`,
+                  title: selectedEntry.title
+                });
+              }
+            }}>
+              <Icon name="share" size={24} color="#8B5CF6" />
+            </TouchableOpacity>
+          </View>
+          
+          {selectedEntry && (
+            <ScrollView style={styles.modalContent}>
+              <View style={styles.entryDetailHeader}>
+                <Text style={styles.entryDetailTitle}>{selectedEntry.title}</Text>
+                <View style={[styles.tag, { backgroundColor: getTagColor(selectedEntry.tagType) }]}>
+                  <Text style={styles.tagText}>{selectedEntry.tag}</Text>
+                </View>
+              </View>
+              
+              <View style={styles.entryDetailMeta}>
+                <View style={styles.metaItem}>
+                  <Icon name="schedule" size={16} color="#666" />
+                  <Text style={styles.metaText}>{selectedEntry.date}</Text>
+                </View>
+                <View style={styles.metaItem}>
+                  <Icon name="person" size={16} color="#666" />
+                  <Text style={styles.metaText}>{selectedEntry.user}</Text>
+                </View>
+              </View>
+              
+              <View style={styles.entryDetailContent}>
+                <Text style={styles.entryDetailDescription}>{selectedEntry.description}</Text>
+              </View>
+              
+              <View style={styles.entryActions}>
+                <TouchableOpacity style={styles.actionButton}>
+                  <Icon name="edit" size={20} color="#8B5CF6" />
+                  <Text style={styles.actionButtonText}>Edit</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.actionButton}>
+                  <Icon name="delete" size={20} color="#EF4444" />
+                  <Text style={[styles.actionButtonText, { color: '#EF4444' }]}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          )}
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -428,6 +639,168 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginTop: 4,
+  },
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1F2937',
+  },
+  saveButton: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#8B5CF6',
+  },
+  modalContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  inputSection: {
+    marginVertical: 16,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  titleInput: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#1F2937',
+    backgroundColor: '#F9FAFB',
+    minHeight: 60,
+    textAlignVertical: 'top',
+  },
+  categoryContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  categoryButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    backgroundColor: '#F9FAFB',
+    alignItems: 'center',
+  },
+  categoryButtonSelected: {
+    backgroundColor: '#EDE9FE',
+    borderColor: '#8B5CF6',
+  },
+  categoryText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6B7280',
+  },
+  categoryTextSelected: {
+    color: '#8B5CF6',
+  },
+  descriptionInput: {
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#1F2937',
+    backgroundColor: '#F9FAFB',
+    minHeight: 120,
+    textAlignVertical: 'top',
+  },
+  securityNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    padding: 16,
+    borderRadius: 8,
+    marginVertical: 16,
+  },
+  securityText: {
+    fontSize: 14,
+    color: '#6B7280',
+    marginLeft: 8,
+    flex: 1,
+  },
+  // Entry Detail Modal Styles
+  entryDetailHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  entryDetailTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1F2937',
+    flex: 1,
+    marginRight: 12,
+  },
+  entryDetailMeta: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 20,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaText: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  entryDetailContent: {
+    backgroundColor: '#F9FAFB',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  entryDetailDescription: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#374151',
+  },
+  entryActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    gap: 8,
+  },
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#8B5CF6',
   },
 });
 

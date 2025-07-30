@@ -27,7 +27,8 @@ const EmergencyPage = () => {
   const handlePanicButton = () => {
     // Handle panic button logic here
     console.log('Panic button pressed!');
-    // This would typically send emergency alerts, GPS location, etc.
+    // Navigate to panic trigger page
+    router.push('/PanicTriggerPage');
   };
 
   const handleQuickExit = () => {
@@ -46,8 +47,7 @@ const EmergencyPage = () => {
   };
 
   const handleSettings = () => {
-    // Navigate to settings
-    console.log('Navigate to Settings');
+    router.push('/SettingsPage');
   };
 
   return (

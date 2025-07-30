@@ -35,7 +35,7 @@ const RegistrationPage = () => {
     // Handle registration logic here
     console.log('Registration data:', formData);
     // Navigate to main app after successful registration
-    // navigation.navigate('Dashboard');
+    router.push('/DashboardPage');
   };
 
   const handleBack = () => {
