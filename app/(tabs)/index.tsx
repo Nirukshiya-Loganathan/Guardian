@@ -1,12 +1,10 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
-
   const openGuardianApp = () => {
-    navigation.navigate('GuardianHomePage' as never); // Navigate to GuardianHomePage
+    router.push('/GuardianHomePage'); // Navigate to GuardianHomePage
   };
 
   return (

@@ -9,34 +9,21 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from './_layout';
+import { router } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
 const HomePage = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
   const handleCreateAccount = () => {
     // Navigate to create account screen
     console.log('Navigate to Create Account');
-    if (navigation) {
-      navigation.navigate('RegistrationPage');
-    } else {
-      console.error("Navigation object is undefined in GuardianHomePage.");
-      // Optionally, add an alert or other user feedback here
-    }
+    router.push('/RegistrationPage');
   };
 
   const handleLogin = () => {
     // Navigate to login screen
     console.log('Navigate to Login');
-    if (navigation) {
-      navigation.navigate('LoginPage');
-    } else {
-      console.error("Navigation object is undefined in GuardianHomePage.");
-      // Optionally, add an alert or other user feedback here
-    }
+    router.push('/LoginPage');
   };
 
   return (

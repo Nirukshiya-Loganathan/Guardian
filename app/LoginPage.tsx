@@ -10,10 +10,9 @@ import {
   Image, // Added Image import
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from './_layout'; // Assuming RootStackParamList is defined in _layout.tsx
+import { router } from 'expo-router';
 
-const LoginPage = ({ navigation }: { navigation: NavigationProp<RootStackParamList> }) => {
+const LoginPage = () => {
   const [pin, setPin] = useState('');
 
   const handleLogin = () => {
@@ -30,10 +29,10 @@ const LoginPage = ({ navigation }: { navigation: NavigationProp<RootStackParamLi
   };
 
   const handleBack = () => {
-    if (navigation.canGoBack()) {
-      navigation.goBack(); // Go back if there's a previous screen
+    if (router.canGoBack()) {
+      router.back(); // Go back if there's a previous screen
     } else {
-      navigation.navigate('GuardianHomePage'); // Navigate to home if no previous screen
+      router.push('/GuardianHomePage'); // Navigate to home if no previous screen
     }
   };
 
