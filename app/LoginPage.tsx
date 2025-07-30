@@ -18,8 +18,8 @@ const LoginPage = () => {
   const handleLogin = () => {
     // Handle login logic here
     console.log('Login with PIN:', pin);
-    // Navigate to main app after successful login
-    // navigation.navigate('Dashboard');
+    // Navigate to Emergency Page after successful login
+    router.push('/EmergencyPage');
   };
 
   const handleHelp = () => {
@@ -38,7 +38,7 @@ const LoginPage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f8f4ff" translucent={false} />
       
       {/* Header */}
       <View style={styles.header}>
@@ -103,9 +103,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 20,
+    paddingTop: 25,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+    backgroundColor: '#f8f4ff',
   },
   backButton: {
     padding: 8,
@@ -124,7 +126,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 40, // Increased padding to move content down
+    paddingTop: 20,
   },
   title: {
     fontSize: 24,

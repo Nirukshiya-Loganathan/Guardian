@@ -12,6 +12,9 @@ export type RootStackParamList = {
   'GuardianHomePage': undefined; // Assuming home page doesn't take params
   'RegistrationPage': undefined; // Assuming registration page doesn't take params
   'LoginPage': undefined; // Assuming login page doesn't take params
+  'EmergencyPage': undefined; // Emergency assistance page
+  'DashboardPage': undefined; // Dashboard page
+  'JournalPage': undefined; // Journal page
   '+not-found': undefined; // Assuming not-found page doesn't take params
   // Add other screens here as you create them
 };
@@ -34,6 +37,9 @@ export default function RootLayout() {
         <Stack.Screen name="GuardianHomePage" options={{ headerShown: false }} />
         <Stack.Screen name="RegistrationPage" options={{ headerShown: false }} />
         <Stack.Screen name="LoginPage" options={{ headerShown: false }} />
+        <Stack.Screen name="EmergencyPage" options={{ headerShown: false }} />
+        <Stack.Screen name="DashboardPage" options={{ headerShown: false }} />
+        <Stack.Screen name="JournalPage" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

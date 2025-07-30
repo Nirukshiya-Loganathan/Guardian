@@ -48,7 +48,7 @@ const RegistrationPage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f8f4ff" translucent={false} />
       
       {/* Header */}
       <View style={styles.header}>
@@ -215,9 +215,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 20,
+    paddingTop: 25,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+    backgroundColor: '#f8f4ff',
   },
   backButton: {
     padding: 8,
@@ -238,8 +240,8 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 24,
-    paddingTop: 40, // Increased padding to move content down
-    paddingBottom: 24, // Keep bottom padding
+    paddingTop: 20,
+    paddingBottom: 24,
   },
   section: {
     marginBottom: 24,
